@@ -7,7 +7,9 @@ router.get('/', async (req, res) => {
   // find all categories
   // be sure to include its associated Products
   try {
-    const categoryData = await Category.findAll();
+    const categoryData = await Category.findAll({
+      include: [{ model: Product, as: 'products' }],
+    });
     res.status(200).json(categoryData);
   } catch (err) {
     res.status(500).json(err);
@@ -20,7 +22,7 @@ router.get('/:id', async (req, res) => {
   try {
     const categoryData = await Category.findByPk(req.params.id, {
       // JOIN with category, using the product through table
-      include: [{ model: Category, through: Product }]
+      include: [{ model: Product, as: 'products' }]
     });
 
     if (!categoryData) {
@@ -45,12 +47,15 @@ router.post('/', async (req, res) => {
 // not sure if I am supposed to use await in line 48, b/c I did I had to add async to line 46
 router.put('/:id', async (req, res) => {
   try {
-    const categoryData = await Category.update(req.body, {
+    const categoryData = await Category.update({
+      category_name: req.body.category_name,
+    },
+    {
       where: {
         id: req.params.id,
       },
     });
-    if (!categoryData[0]) {
+    if (!categoryData) {
       res.status(404).json({ message: 'No category with this id!' });
       return;
     }

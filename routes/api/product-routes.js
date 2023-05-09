@@ -10,16 +10,17 @@ router.get('/', async (req, res) => {
   try {
     const productData = await Product.findAll({
       include: [
-      {
-        model: Category,
-        attributes: ['id', 'category_name']
-      },
-      {
-        model: Tag,
-        attributes: ['id', 'tag_name']
-      },
-    ]
-  })
+        {
+          model: Category,
+          as: 'cateory',
+        },
+        {
+          model: Tag,
+          through: ProductTag,
+          as: 'tagIds'
+        },
+      ]
+    })
     res.status(200).json(productData);
   } catch (err) {
     res.status(500).json(err);
@@ -35,11 +36,12 @@ router.get('/:id', async (req, res) => {
       include: [
         {
           model: Category,
-          attributes: ['id', 'category_name']
+          as: 'category'
         },
         {
           model: Tag,
-          attributes: ['id', 'tag_name']
+          through: ProductTag,
+          as: 'tagIds'
         },
       ]
     });
@@ -88,7 +90,7 @@ router.post('/', (req, res) => {
 });
 
 // update product
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   // update product data
   Product.update(req.body, {
     where: {
@@ -143,7 +145,7 @@ router.delete('/:id', async (req, res) => {
       return;
     }
 
-    res.status(200).json(categoproductDataryData);
+    res.status(200).json(productData);
   } catch (err) {
     res.status(500).json(err);
   }
